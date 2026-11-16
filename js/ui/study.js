@@ -352,7 +352,7 @@
         } catch (err) {
           // No se guardó: la tarjeta sigue a la vista y revelada para reintentar.
           console.error(err);
-          UI.toast('No se pudo guardar la respuesta. Inténtalo de nuevo.', 4000);
+          UI.toast(`No se pudo guardar la respuesta. Inténtalo de nuevo.${err && err.name ? ` (${err.name})` : ''}`, 5000);
           return;
         }
         undoStack.push(saved);

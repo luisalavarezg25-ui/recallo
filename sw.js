@@ -1,5 +1,5 @@
 /* Service worker: permite usar la app sin conexión cuando se sirve por http(s). */
-const CACHE = 'recallo-v9';
+const CACHE = 'recallo-v10';
 // Únicos orígenes externos que se guardan en caché (librerías JSZip, sql.js).
 const CDN_HOSTS = ['cdnjs.cloudflare.com', 'cdn.jsdelivr.net'];
 const SHELL = [

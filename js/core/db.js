@@ -27,54 +27,71 @@
         req.onsuccess = () => {
           const db = req.result;
           // Si otra pestaña necesita actualizar la base de datos, cedemos la conexión.
-          db.onversionchange = () => { db.close(); dbp = null; };
+          db.onversionchange = () => { db.close(); if (dbp === p) dbp = null; };
+          // El navegador puede cerrar la conexión por su cuenta (Safari/iOS lo hace al pasar
+          // la app a segundo plano o al liberar memoria): la próxima operación abre otra.
+          db.onclose = () => { if (dbp === p) dbp = null; };
           resolve(db);
         };
-        req.onerror = () => { dbp = null; reject(req.error); };
+        req.onerror = () => { if (dbp === p) dbp = null; reject(req.error); };
       });
+      const p = dbp;
     }
     return dbp;
   }
 
-  const done = (t) => new Promise((res, rej) => {
-    t.oncomplete = () => res();
-    t.onerror = () => rej(t.error);
-    t.onabort = () => rej(t.error || new Error('Transacción abortada'));
-  });
+  /**
+   * Ejecuta una transacción. Si falla porque la conexión estaba cerrada o se perdió
+   * (habitual en Safari/iOS tras volver de segundo plano), reabre la base de datos y
+   * lo intenta una vez más. Las operaciones son idempotentes (put/delete/get), así que
+   * repetirlas es seguro.
+   */
+  async function run(stores, mode, fill) {
+    for (let attempt = 0; ; attempt++) {
+      try {
+        const db = await open();
+        return await new Promise((res, rej) => {
+          const t = db.transaction(stores, mode);
+          let result;
+          fill(t, (v) => { result = v; });
+          t.oncomplete = () => res(result);
+          t.onerror = () => rej(t.error);
+          t.onabort = () => rej(t.error || new DOMException('Transacción abortada', 'AbortError'));
+        });
+      } catch (e) {
+        if (attempt >= 1 || (e && e.name === 'QuotaExceededError')) throw e;
+        // Conexión inservible: se descarta para que open() cree una nueva.
+        const old = dbp;
+        dbp = null;
+        try { (await old)?.close(); } catch (_) {}
+      }
+    }
+  }
 
-  DB.getAll = async (store) => {
-    const db = await open();
-    return new Promise((res, rej) => {
-      const r = db.transaction(store).objectStore(store).getAll();
-      r.onsuccess = () => res(r.result);
-      r.onerror = () => rej(r.error);
-    });
-  };
+  DB.getAll = (store) => run(store, 'readonly', (t, set) => {
+    const r = t.objectStore(store).getAll();
+    r.onsuccess = () => set(r.result);
+  });
 
   DB.put = async (store, items) => {
     items = [].concat(items);
     if (!items.length) return;
-    const db = await open();
-    const t = db.transaction(store, 'readwrite');
-    const os = t.objectStore(store);
-    for (const it of items) os.put(it);
-    return done(t);
+    return run(store, 'readwrite', (t) => {
+      const os = t.objectStore(store);
+      for (const it of items) os.put(it);
+    });
   };
 
   DB.del = async (store, keys) => {
     keys = [].concat(keys);
     if (!keys.length) return;
-    const db = await open();
-    const t = db.transaction(store, 'readwrite');
-    const os = t.objectStore(store);
-    for (const k of keys) os.delete(k);
-    return done(t);
+    return run(store, 'readwrite', (t) => {
+      const os = t.objectStore(store);
+      for (const k of keys) os.delete(k);
+    });
   };
 
-  DB.clear = async (stores = DB.STORES) => {
-    const db = await open();
-    const t = db.transaction(stores, 'readwrite');
+  DB.clear = (stores = DB.STORES) => run(stores, 'readwrite', (t) => {
     for (const s of stores) t.objectStore(s).clear();
-    return done(t);
-  };
+  });
 })(window.App);
