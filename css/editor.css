@@ -1,0 +1,141 @@
+/* Estilos de la pantalla «editor» (se carga después del resto de hojas). */
+
+/* El editor como papel: campos con la tipografía de la tarjeta, etiquetas en
+   versalitas sans (como .card-dir) y una sola barra de acciones al pie. */
+main:has(> .editor) { padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+.editor { gap: 18px; }
+.editor { --ed-paper: color-mix(in srgb, var(--surface) 97%, #e9dcc0); }
+.editor .field > span,
+.editor .field-label {
+  font-family: var(--font); font-size: .8125rem; font-weight: 500;
+  font-variant-caps: all-small-caps; letter-spacing: .06em; color: var(--muted);
+}
+.editor .field-help { font-size: .75rem; color: var(--muted); }
+
+/* Cada campo: título y barra en la misma fila; en el DOM la barra va después del
+   campo, así el tabulador pasa del texto a su barra y luego al campo siguiente. */
+.editor .ed-field {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end;
+  column-gap: 8px; row-gap: 6px;
+}
+.ed-field .field-title { grid-column: 1; grid-row: 1; display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 6px; min-width: 0; }
+.ed-field .toolbar { grid-column: 2; grid-row: 1; }
+.ed-field .rich, .ed-field .field-error, .ed-field .cloze-list { grid-column: 1 / -1; }
+.ed-field .rich { grid-row: 2; }
+.ed-field .field-help::before { content: '· '; }
+
+/* Campos de escritura: papel, filete fino, serif de la tarjeta. */
+.editor .rich {
+  font-family: var(--card-font); font-size: 1.125rem; line-height: 1.6;
+  background: var(--ed-paper);
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 14px 16px; min-height: 104px;
+}
+.editor .rich:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.editor .rich[aria-invalid="true"] { border-color: var(--danger); box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 18%, transparent); }
+.field-error {
+  margin: 0; font-size: .875rem; color: var(--danger);
+  display: flex; gap: 6px; align-items: baseline;
+}
+.field-error::before { content: '!'; font-weight: 700; font-family: var(--font); }
+
+/* Huecos como fichas de tinta dentro del texto (sin cambiar el HTML guardado):
+   fondo suave en el hueco, sintaxis {{ :: }} casi borrada y el número como sello. */
+::highlight(recallo-cloze) {
+  background-color: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+}
+::highlight(recallo-cloze-syntax) {
+  color: color-mix(in srgb, var(--accent) 28%, transparent);
+  background-color: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+::highlight(recallo-cloze-num) {
+  background-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+/* Lista de huecos bajo el texto: número, respuesta y × para quitarlo. */
+.cloze-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.cloze-list[hidden] { display: none; }
+.cloze-chip {
+  display: inline-flex; align-items: center; gap: 6px; max-width: 100%;
+  padding: 2px 2px 2px 4px; border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+  border-radius: 999px; background: var(--ed-paper);
+  font-family: var(--card-font); font-size: .9375rem; color: var(--text);
+}
+.cloze-chip-n {
+  min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px;
+  display: inline-grid; place-items: center;
+  background: var(--accent); color: var(--accent-ink);
+  font-family: var(--font); font-size: .75rem; font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.cloze-chip-t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 22ch; }
+.cloze-chip-t i { color: var(--muted); }
+.cloze-chip.is-empty .cloze-chip-t { color: var(--danger); font-style: italic; }
+.cloze-chip-x {
+  width: 32px; height: 32px; border: 0; border-radius: 50%; background: none; cursor: pointer;
+  color: var(--muted); font: inherit; font-family: var(--font); font-size: 1.125rem; line-height: 1;
+  display: inline-grid; place-items: center;
+}
+.cloze-chip-x:hover { background: var(--surface-2); color: var(--text); }
+.cloze-chip-x:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* Barra de formato: B I U legibles, estado pulsado visible. */
+.editor .toolbar button { color: var(--muted); }
+.editor .toolbar button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); }
+.editor .toolbar button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.tb-b, .tb-i, .tb-u { font-family: var(--card-font); font-size: 1.0625rem; line-height: 1; }
+.tb-b { font-weight: 700; }
+.tb-i { font-style: italic; }
+.tb-u { text-decoration: underline; text-underline-offset: 2px; }
+.editor .toolbar .cloze-btn { font-family: var(--font); font-weight: 600; color: var(--accent); }
+.editor .toolbar .cloze-same { font-size: .8125rem; white-space: nowrap; }
+
+/* Ayuda del tipo de nota. */
+.editor .hint { display: grid; gap: 4px; margin-top: -8px; }
+.editor .hint i { font-family: var(--card-font); color: var(--text); }
+
+/* Avisos de estado (borrador, nota suspendida): papel, filete fino, etiqueta en versalitas. */
+.ed-draft, .ed-suspended {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+  padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--ed-paper);
+}
+.ed-draft[hidden], .ed-suspended[hidden] { display: none; }
+.ed-draft p, .ed-suspended p { font-size: .9375rem; flex: 1 1 14rem; }
+.ed-draft-label {
+  font-family: var(--font); font-size: .8125rem; font-weight: 600; color: var(--muted);
+  font-variant-caps: all-small-caps; letter-spacing: .08em;
+}
+.ed-draft-actions { display: flex; gap: 8px; }
+.ed-draft .btn, .ed-suspended .btn { min-height: 40px; padding: 0 14px; }
+.ed-pill {
+  font-family: var(--font); font-size: .8125rem; font-weight: 600; color: var(--learn);
+  font-variant-caps: all-small-caps; letter-spacing: .08em;
+  padding: 1px 10px; border: 1px solid color-mix(in srgb, var(--learn) 45%, transparent); border-radius: 999px;
+}
+
+/* Barra de guardado: siempre a la vista, al pie. */
+.ed-bar {
+  position: sticky; bottom: 0; z-index: 5;
+  display: flex; align-items: center; justify-content: flex-end; gap: 16px;
+  margin: 4px -16px 0; padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  border-top: 1px solid var(--border);
+}
+.ed-bar .kbd-hint { margin-right: auto; }
+.ed-bar .btn-primary { min-width: 220px; }
+
+/* Táctil y móvil: objetivos de 44px; la barra de formato baja a su propia fila. */
+@media (hover: none), (max-width: 480px) {
+  .editor .toolbar { gap: 0; flex-wrap: wrap; }
+  .editor .toolbar button { min-width: 44px; height: 44px; }
+  .cloze-chip-x { width: 44px; height: 44px; margin: -6px -2px -6px 0; }
+}
+@media (max-width: 480px) {
+  .ed-bar .btn-primary { flex: 1; min-width: 0; }
+  .ed-field .field-title { grid-column: 1 / -1; }
+  .ed-field .toolbar { grid-column: 1 / -1; grid-row: 3; }
+  .ed-field .field-error { grid-row: 4; }
+  .ed-field .cloze-list { grid-row: 5; }
+}

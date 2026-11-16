@@ -1,0 +1,63 @@
+﻿/* Estilos de la mejora «adapt» de la pantalla de estudio (se carga después de app.css). */
+
+/* Altura real de la barra fija (12 + botón de valoración ~58 + 12 + borde),
+   sin el área segura, que app.css ya suma aparte en main y en el toast.
+   Es el valor de partida: study.js (scrollToAnswer) lo ajusta midiendo la barra. */
+:root { --bar-h: 84px; }
+
+/* Barra de respuesta del estudio opaca: el texto largo no se transparenta tras
+   los botones de valoración. Solo la del estudio (la .bottom-bar de inicio no cambia). */
+.answer-bar:has(#st-bar) {
+  background: var(--bg);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-top: 1px solid var(--border);
+}
+
+/* Al revelar, la respuesta queda bajo la cabecera fija y nunca tras la barra. */
+.flashcard .answer-sep,
+.flashcard .cloze {
+  scroll-margin-top: calc(56px + env(safe-area-inset-top) + 16px);
+  scroll-margin-bottom: calc(var(--bar-h) + env(safe-area-inset-bottom) + 16px);
+}
+.flashcard .answer-sep ~ * {
+  scroll-margin-bottom: calc(var(--bar-h) + env(safe-area-inset-bottom) + 16px);
+}
+
+/* Indicio de desbordamiento: solo cuando study.js (updateOverflow) marca la
+   tarjeta con .is-overflowing porque su contenido sigue bajo la barra. Es un
+   elemento sticky pegado al borde inferior visible; al llegar al final de la
+   tarjeta reposa en su relleno inferior (mismo papel, sin tapar el filete a
+   7-8px del borde), así que entonces no se ve. No capta toques. */
+.flashcard.is-overflowing { flex-wrap: wrap; align-content: flex-start; padding-bottom: 44px; }
+.flashcard.is-overflowing::after {
+  content: '';
+  flex: 0 0 100%;
+  height: 28px;
+  margin-bottom: -28px;
+  position: sticky;
+  /* Justo encima de la barra opaca: altura medida por study.js (updateOverflow). */
+  bottom: var(--answer-bar-live, calc(var(--bar-h) + env(safe-area-inset-bottom)));
+  z-index: 1;
+  pointer-events: none;
+  /* De papel transparente a papel opaco (no desde negro transparente). */
+  background: linear-gradient(to bottom, rgb(from var(--paper, var(--surface)) r g b / 0), var(--paper, var(--surface)));
+}
+
+/* Texto largo: medida cómoda de 60ch (.face-long, igual antes y después de
+   revelar) y alineación decidida por partes (clases de study.js):
+   .q-long  → la pregunta (o el cloze) es larga: toda la cara a la izquierda.
+   .a-long  → la respuesta revelada es larga: a la izquierda, pero el eco de
+              la pregunta breve (.echo-q) y la señal de dirección siguen centrados. */
+.flashcard .face.face-long {
+  max-width: min(60ch, 620px);
+  text-wrap: pretty;
+}
+.flashcard .face.q-long,
+.flashcard .face.a-long { text-align: left; }
+.flashcard .face.a-long:not(.q-long) :is(.echo-q, .card-dir) { text-align: center; }
+.flashcard .face.face-long :is(ul, ol) { display: block; padding-left: 1.25em; }
+.flashcard .face.face-long :is(img, table, audio) { margin-inline: auto; display: block; }
+@media (max-width: 480px) {
+  .flashcard .face.face-long { font-size: 1.125rem; line-height: 1.6; }
+}

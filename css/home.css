@@ -1,0 +1,187 @@
+/* Estilos de la pantalla «home» (se carga después del resto de hojas).
+   Inicio y detalle de mazo con los materiales del estudio: papel cálido, filete fino
+   en lugar de sombra, tinta como único color de acción y serif para lo que se lee. */
+
+/* ---------- Superficies de papel ---------- */
+.summary, .deck-hero, .deck-list, .tile, .modal, .busy-box {
+  background: var(--paper);
+  border-color: var(--hairline);
+  box-shadow: none;
+}
+/* Fichas principales: filete interior impreso, como la tarjeta de estudio. */
+.summary.today, .deck-hero {
+  box-shadow:
+    inset 0 0 0 6px var(--paper),
+    inset 0 0 0 7px color-mix(in srgb, var(--border) 70%, transparent);
+}
+.modal { border: 1px solid var(--hairline); }
+.busy-box:focus { outline: none; }
+
+/* ---------- «Hoy» (inicio) ---------- */
+.summary.today {
+  display: grid; justify-items: start; justify-content: stretch; gap: 2px;
+  padding: 22px 22px 20px;
+}
+.summary.today .summary-main {
+  font-family: var(--card-font); font-weight: 400; font-size: 1.375rem; line-height: 1.25; margin: 4px 0 2px;
+}
+.summary.today .summary-num {
+  font-family: var(--card-font); font-weight: 500; font-size: 2.5rem; line-height: 1;
+  letter-spacing: -.01em; margin-right: .08em; font-variant-numeric: lining-nums;
+}
+.summary.today .summary-sub { font-size: .9375rem; }
+.summary.today .counts-labeled { margin-top: 12px; justify-content: flex-start; font-size: 1rem; }
+.summary.today .today-cta { margin-top: 18px; width: auto; min-width: 15rem; padding: 0 22px; }
+.cta-deck {
+  display: inline-block; max-width: 16ch; vertical-align: bottom;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500;
+}
+
+/* ---------- Cabecera de la lista: acciones discretas ---------- */
+.deck-head { align-items: center; margin-bottom: 2px; }
+.list-actions { display: flex; gap: 2px; margin-right: -6px; }
+.btn-quiet {
+  background: transparent; border-color: transparent; color: var(--accent);
+  padding: 0 10px; font-weight: 550; gap: 6px;
+}
+.btn-quiet:hover { background: var(--accent-soft); }
+.btn-quiet svg { width: 18px; height: 18px; }
+
+/* ---------- Columnas de contadores: etiquetas una sola vez, sobre las cifras ---------- */
+#view { --cols: 3.5rem 5.75rem 3.5rem; --col-gap: 4px; }
+.count-head { display: flex; justify-content: flex-end; padding: 6px 8px 6px 0; }
+.count-head.with-more { padding-right: 56px; } /* 8px de relleno del enlace + 48px del botón «⋯» */
+.count-cols, .deck-list .counts {
+  display: grid; grid-template-columns: var(--cols); column-gap: var(--col-gap);
+}
+.count-cols > span {
+  text-align: center; white-space: nowrap;
+  font-size: .8125rem; font-weight: 500; font-variant-caps: all-small-caps; letter-spacing: .04em;
+  color: var(--muted);
+}
+.deck-list .counts > span { min-width: 0; text-align: center; }
+
+/* Una sola columna «pendientes» (pantallas estrechas): oculta en las anchas. */
+#view { --cols-w: calc(12.75rem + 8px); --total-w: 4.25rem; }
+.count-cols-total, .count-total { display: none; }
+/* Mazo sin tarjetas: «vacío» ocupa el sitio de las cifras (no parece un mazo al día). */
+.count-empty {
+  flex: none; width: var(--cols-w); text-align: center;
+  font-size: .875rem; font-variant-caps: all-small-caps; letter-spacing: .05em; color: var(--muted);
+}
+
+/* ---------- Filas ---------- */
+.deck-list .deck-link { gap: 12px; }
+.deck-name { font-size: 1rem; }
+/* Raíces en serif; submazos en sans, más discretos. */
+.deck-list .deck-row.is-root .deck-name { font-family: var(--card-font); font-size: 1.0625rem; font-weight: 500; }
+.deck-list .deck-row.is-child .deck-name { color: var(--muted); font-weight: 450; font-size: .9375rem; }
+
+/* Hueco del plegado: 40px por fila, sangría de 16px por nivel y un filete guía
+   que baja desde el botón del mazo padre. */
+.deck-list.has-slot .deck-row { padding-left: 4px; }
+.deck-list.has-slot .deck-link { padding-left: 0; }
+.deck-slot {
+  flex: none; position: relative; align-self: stretch;
+  width: 40px; margin-left: calc(var(--depth, 0) * 16px);
+  display: grid; place-items: center;
+}
+.deck-row.is-child .deck-slot::before {
+  content: ""; position: absolute; top: 0; bottom: 0; left: 4px;
+  border-left: 1px solid var(--hairline);
+}
+.deck-toggle {
+  width: 40px; height: 44px; display: grid; place-items: center;
+  border: 0; border-radius: 10px; background: none; color: var(--muted); cursor: pointer;
+}
+.deck-toggle:hover { background: var(--surface-2); color: var(--text); }
+.deck-toggle svg { width: 18px; height: 18px; transform: rotate(-90deg); transition: transform .18s ease-out; }
+.deck-toggle[aria-expanded="false"] svg { transform: rotate(180deg); }
+@media (prefers-reduced-motion: reduce) { .deck-toggle svg { transition: none; } }
+.sub-empty { margin: 0 4px 24px; color: var(--muted); font-size: .9375rem; }
+
+/* ---------- Barra inferior: una acción secundaria, tinta sobre papel ---------- */
+.home-bar { background: var(--bg); backdrop-filter: none; -webkit-backdrop-filter: none; }
+.home-bar .bottom-bar-inner { display: block; }
+.btn-paper {
+  background: var(--paper); border: 1px solid var(--accent); color: var(--accent);
+  font-family: var(--card-font); font-size: 1.0625rem; font-weight: 400; letter-spacing: .01em;
+  min-height: 52px;
+}
+.btn-paper:hover { background: var(--accent-soft); }
+
+/* ---------- Estado vacío del inicio ---------- */
+.home-empty h2 { font-family: var(--card-font); font-weight: 500; font-size: 1.375rem; }
+.empty-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 14px; }
+.empty-actions .btn { margin-top: 0; }
+
+/* ---------- Detalle de mazo ---------- */
+.deck-hero { padding: 26px 20px 20px; }
+.deck-path {
+  margin: 0 0 6px; text-transform: none; font-size: .875rem; font-weight: 500;
+  font-variant-caps: all-small-caps; letter-spacing: .05em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.deck-path a { color: var(--muted); text-decoration: underline dotted; text-underline-offset: .2em; }
+.deck-path a:hover { color: var(--text); }
+.deck-state {
+  font-family: var(--card-font); font-weight: 400; font-size: 1.75rem; line-height: 1.2;
+  margin: 0 0 20px; text-wrap: balance;
+}
+.stat-row { margin-bottom: 20px; }
+.stat-num { font-family: var(--card-font); font-weight: 500; font-size: 2.25rem; font-variant-numeric: lining-nums tabular-nums; }
+.stat.zero .stat-num { color: var(--muted); font-weight: 400; }
+.stat-label { font-size: .875rem; font-variant-caps: all-small-caps; letter-spacing: .05em; }
+.deck-hero .done-msg {
+  background: transparent; border-radius: 0; border-top: 1px solid var(--border);
+  padding: 16px 0 0; color: var(--muted);
+  display: grid; justify-items: center; gap: 14px;
+}
+.tile { font-weight: 550; }
+
+/* ---------- Diálogos ---------- */
+.field-hint { font-size: .8125rem; color: var(--muted); font-weight: 400; }
+.field-error { font-size: .8125rem; color: var(--danger); font-weight: 550; }
+.field-error:empty, .modal-enter-hint:empty { display: none; }
+.modal input[aria-invalid="true"] { border-color: var(--danger); }
+.modal-enter-hint { margin: 12px 0 0; font-size: .8125rem; color: var(--text); }
+.sheet-sep { border: 0; border-top: 1px solid var(--border); margin: 6px 8px; }
+
+/* ---------- Aviso con acción («Deshacer») ---------- */
+#toast.has-action { pointer-events: auto; display: flex; align-items: center; gap: 10px; padding: 6px 8px 6px 16px; }
+.toast-action {
+  min-height: 36px; padding: 0 10px; border: 0; border-radius: 8px; cursor: pointer;
+  background: color-mix(in srgb, var(--bg) 14%, transparent); color: inherit;
+  font: inherit; font-weight: 650;
+}
+.toast-action:hover { background: color-mix(in srgb, var(--bg) 24%, transparent); }
+.toast-action:focus-visible { outline: 2px solid var(--bg); outline-offset: -2px; }
+.tech-detail { font-size: .875rem; }
+.tech-detail summary { cursor: pointer; color: var(--muted); min-height: 32px; display: inline-flex; align-items: center; }
+.tech-detail code {
+  display: block; margin-top: 6px; padding: 8px 10px; border-radius: 8px;
+  background: var(--surface-2); color: var(--text);
+  font-size: .8125rem; white-space: pre-wrap; overflow-wrap: anywhere;
+}
+
+/* ---------- Móvil ---------- */
+@media (max-width: 480px) {
+  #view { --cols: 2.375rem 4.25rem 2.375rem; --col-gap: 2px; }
+  .count-cols > span { font-size: .6875rem; letter-spacing: 0; }
+  /* Filas estrechas: una sola cifra (total pendiente) para dejar sitio al nombre;
+     el reparto en tres sigue en el detalle del mazo. */
+  .deck-list .counts, .count-cols { display: none; }
+  .count-total, .count-cols-total { display: block; flex: none; width: var(--total-w); text-align: center; }
+  .count-total { font-weight: 650; font-variant-numeric: tabular-nums; color: var(--text); }
+  .count-total.zero { color: var(--muted); font-weight: 400; }
+  .count-cols-total > span { font-size: .75rem; font-weight: 500; font-variant-caps: all-small-caps; letter-spacing: .04em; color: var(--muted); }
+  .count-empty { width: var(--total-w); }
+  /* Nombres largos: hasta dos líneas en lugar de recortarse tanto. */
+  .deck-name {
+    white-space: normal; overflow-wrap: anywhere;
+    display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+  }
+  .summary.today { padding: 20px 18px 18px; }
+  .summary.today .today-cta { width: 100%; } /* en móvil, a todo el ancho y fácil de alcanzar */
+  .deck-state { font-size: 1.5rem; }
+}

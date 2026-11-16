@@ -1,0 +1,67 @@
+﻿/* Estilos de la mejora «polish» de la pantalla de estudio (se carga después de app.css). */
+
+/* --- Separador de «Extra» en cloze: mismo trazo que .answer-sep (sin ser destino del scroll) --- */
+/* El trazo y color lo heredan de `.flashcard hr` (app.css + a11y.css); aquí solo se fija el ritmo. */
+.flashcard .extra-sep { margin: 22px 0; }
+
+/* --- Señal de dirección en tarjetas invertidas: discreta, sans, versalitas --- */
+.flashcard .card-dir {
+  margin: 0 0 14px;
+  font-family: var(--font); font-size: .8125rem; font-weight: 500;
+  font-variant-caps: all-small-caps; letter-spacing: .06em;
+  color: var(--muted);
+}
+
+/* --- Proporción de la tarjeta: sin losas vacías en escritorio, llena en móvil --- */
+@media (min-width: 768px) {
+  .card-stage { align-items: center; padding-block: clamp(8px, 4vh, 40px); }
+  .flashcard { min-height: min(46vh, 420px); padding: 40px 48px; }
+}
+
+/* Móvil: una pregunta corta no ocupa toda la pantalla; la tarjeta se lee como ficha,
+   centrada en su espacio. Las respuestas largas siguen creciendo con normalidad. */
+@media (max-width: 767px) {
+  .study .card-stage { align-items: center; }
+  .flashcard:not(.done) { flex: 1 1 auto; min-height: min(52vh, 440px); align-self: center; }
+}
+
+/* --- Listas y tablas dentro de la tarjeta --- */
+.flashcard ul, .flashcard ol { padding-left: 1.4em; max-width: 100%; }
+.flashcard li + li { margin-top: .25em; }
+.flashcard table {
+  display: block; width: max-content; max-width: 100%; overflow-x: auto;
+  font-size: .875em; line-height: 1.4; font-variant-numeric: tabular-nums;
+}
+.flashcard td, .flashcard th { padding: 6px 12px; text-align: left; vertical-align: top; }
+.flashcard th { font-family: var(--font); font-size: .875em; font-weight: 600; background: var(--surface-2); }
+
+/* --- Jerarquía al revelar: la pregunta repetida baja a segundo plano, la respuesta manda --- */
+.flashcard .echo-q {
+  font-size: .8em; line-height: 1.4;
+  color: var(--muted); /* opacidad completa: ≥4,5:1 sobre --surface en claro y oscuro */
+  animation: none;
+}
+
+/* --- Hueco sin revelar: peso normal (como al revelarlo), se distingue por el acento y un subrayado punteado --- */
+.flashcard:not(.revealed) .cloze {
+  font-weight: inherit;
+  letter-spacing: .02em;
+  text-decoration: underline dotted;
+  text-decoration-thickness: 1px;
+  text-underline-offset: .22em;
+}
+
+/* Móvil: la ficha se centra ópticamente (algo por encima del centro geométrico). */
+@media (max-width: 767px) {
+  .flashcard:not(.done) { margin-bottom: 6vh; }
+}
+
+/* Hoja de atajos de teclado */
+.shortcut-list { display: grid; gap: 6px; margin: 0; }
+.shortcut-list > div { display: grid; grid-template-columns: 6.5rem 1fr; align-items: baseline; gap: 12px; }
+.shortcut-list dt { margin: 0; }
+.shortcut-list dd { margin: 0; color: var(--text); }
+.shortcut-list kbd {
+  font-family: var(--font); font-size: .8125rem; padding: 2px 8px; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--surface-2); color: var(--text);
+}

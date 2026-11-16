@@ -1,0 +1,39 @@
+﻿/* Estilos de la mejora «harden» de la pantalla de estudio (se carga después de app.css). */
+
+/* Interruptor de ajustes (p. ej. «Posponer tarjetas hermanas»). */
+.setting.setting-switch > span { flex: 1 1 auto; min-width: 0; }
+.setting input[type="checkbox"][role="switch"] {
+  appearance: none; -webkit-appearance: none;
+  flex: none; width: 44px; height: 26px; min-height: 0; margin: 0; padding: 0; box-sizing: border-box;
+  border-radius: 999px; border: 1px solid color-mix(in srgb, var(--muted) 55%, var(--border));
+  background: var(--surface-2, var(--border)); position: relative; cursor: pointer; box-shadow: none;
+  transition: background-color .2s ease, border-color .2s ease;
+}
+.setting input[type="checkbox"][role="switch"]::before {
+  content: ""; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px;
+  border-radius: 50%; background: var(--muted); box-shadow: 0 1px 2px rgba(0, 0, 0, .2);
+  transition: transform .2s ease;
+}
+.setting input[type="checkbox"][role="switch"]:checked { background: var(--accent); border-color: var(--accent); }
+.setting input[type="checkbox"][role="switch"]:checked::before { transform: translateX(18px); background: var(--accent-ink); }
+.setting input[type="checkbox"][role="switch"]:focus { box-shadow: none; }
+.setting input[type="checkbox"][role="switch"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  .setting input[type="checkbox"][role="switch"],
+  .setting input[type="checkbox"][role="switch"]::before { transition: none; }
+}
+
+/* Arranque: estado de carga y mensajes cuando el almacenamiento no responde. */
+.boot-state { min-height: 50vh; align-content: center; }
+.boot-state .spinner { margin-bottom: 8px; }
+.boot-state p { max-width: 36ch; }
+
+/* Altura de la pantalla de estudio sin scroll de sobra: la suma exacta es
+   cabecera (56 + borde ≈ 57) + relleno superior de main (16) + .study + relleno inferior
+   (barra + 16 + área segura) = 100dvh. Así una tarjeta que cabe no hace
+   desplazarse la página; el aire vertical lo da el centrado, no el relleno. */
+main:has(> .study) { padding-bottom: calc(var(--bar-h) + 16px + env(safe-area-inset-bottom)); }
+.study { min-height: calc(100dvh - 57px - 16px - var(--bar-h) - 16px - env(safe-area-inset-bottom)); }
+@media (min-width: 768px) {
+  .study .card-stage { padding-block: 8px; }
+}

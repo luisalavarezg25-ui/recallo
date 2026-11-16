@@ -1,0 +1,40 @@
+﻿/* Estilos de la mejora «a11y» de la pantalla de estudio (se carga después de app.css). */
+
+/* Utilidad: oculto a la vista, legible para lectores de pantalla. */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0;
+  overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Contadores a cero: se atenúan con el gris editorial (--muted, sin opacidad)
+   y un peso más ligero; así mantienen ≥4.5:1 en claro y oscuro. */
+.counts .zero { color: var(--muted); opacity: 1; font-weight: 400; }
+
+/* Separador pregunta/respuesta: visible como divisor (≥3:1 sobre la tarjeta)
+   sin perder la calma; trazo discontinuo, tono mezclado con la superficie. */
+.flashcard hr,
+.flashcard .answer-sep { border-top-color: color-mix(in srgb, var(--muted) 75%, var(--surface)); }
+
+/* Contadores con etiqueta visible (pantalla de estudio): cifra en su color,
+   palabra pequeña en versalitas sans y gris editorial (≥4.5:1 en ambos temas). */
+.counts-labeled { gap: 14px; align-items: baseline; }
+.counts-labeled > span { display: inline-flex; align-items: baseline; gap: 5px; min-width: 0; text-align: left; }
+.counts-labeled .count-label {
+  font-family: var(--font); font-size: .8125rem; font-weight: 500;
+  font-variant-caps: all-small-caps; letter-spacing: .03em; color: var(--muted);
+}
+/* El subrayado de la cola actual marca solo la cifra, no la palabra. */
+.counts-labeled .active { text-decoration: none; }
+.counts-labeled .active .count-n { text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 2px; }
+
+/* Inicio y filas de mazos: mismas etiquetas que en el estudio. En filas estrechas
+   (<480px) solo cifras, porque la tarjeta «Hoy» de arriba ya las nombra en el mismo orden. */
+.summary .counts-labeled { flex-wrap: wrap; justify-content: flex-end; row-gap: 4px; }
+@media (max-width: 479px) {
+  .deck-row .count-label { display: none; }
+  .deck-row .counts-labeled { gap: 10px; }
+  .summary .counts-labeled { justify-content: flex-start; }
+}

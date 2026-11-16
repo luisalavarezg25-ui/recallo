@@ -1,0 +1,135 @@
+﻿/* Estilos de la mejora «delight» de la pantalla de estudio (se carga después de app.css). */
+
+/* ---------- Superficie de papel ----------
+   Papel ligeramente cálido y un filete interior de 1px a 7px del borde,
+   como la línea impresa de una ficha. Sin degradados ni vidrio. */
+.flashcard {
+  --paper: color-mix(in srgb, var(--surface) 97%, #e9dcc0);
+  --rule: color-mix(in srgb, var(--border) 70%, transparent);
+  background: var(--paper);
+  box-shadow:
+    inset 0 0 0 7px var(--paper),
+    inset 0 0 0 8px var(--rule),
+    var(--shadow);
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color .2s ease-out, box-shadow .2s ease-out;
+}
+
+/* Tarjeta sin revelar: se puede tocar o pulsar para ver la respuesta. */
+.flashcard:not(.revealed):not(.done) { cursor: pointer; position: relative; }
+@media (hover: hover) and (pointer: fine) {
+  .flashcard:not(.revealed):not(.done):hover {
+    border-color: color-mix(in srgb, var(--border) 75%, var(--text));
+    box-shadow:
+      inset 0 0 0 7px var(--paper),
+      inset 0 0 0 8px var(--rule),
+      0 1px 2px rgba(28, 27, 25, .06), 0 10px 28px rgba(28, 27, 25, .09);
+  }
+}
+/* Pista discreta solo en pantallas táctiles (texto alternativo vacío: no se anuncia). */
+@media (hover: none) and (pointer: coarse) {
+  .flashcard.show-tap-hint:not(.revealed):not(.done)::before {
+    content: "Toca la tarjeta" / "";
+    position: absolute; left: 0; right: 0; bottom: 14px;
+    font-family: var(--font); font-size: .75rem; letter-spacing: .02em;
+    color: var(--muted); text-align: center; pointer-events: none;
+    animation: recallo-hint .6s .9s ease-out both;
+  }
+}
+
+/* ---------- Revelado: la respuesta «se entinta» ---------- */
+.flashcard.revealed .answer-sep,
+.flashcard.revealed .extra-sep {
+  transform-origin: 50% 50%;
+  animation: recallo-rule .32s cubic-bezier(.2, .7, .2, 1) both;
+}
+.flashcard.revealed .answer-sep ~ *,
+.flashcard.revealed .extra-sep ~ * {
+  animation: recallo-ink .3s .06s cubic-bezier(.2, .7, .2, 1) both;
+}
+/* Huecos: un trazo de rotulador en el tono de acento barre la palabra revelada. */
+.flashcard.revealed .cloze {
+  background-image: linear-gradient(var(--cloze-hl), var(--cloze-hl));
+  background-repeat: no-repeat;
+  background-position: 0 92%;
+  background-size: 100% 44%;
+  padding: 0 .08em; margin: 0 -.04em;
+  border-radius: 2px;
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
+  --cloze-hl: color-mix(in srgb, var(--accent) 16%, transparent);
+  font-weight: inherit; /* color + subrayado de rotulador bastan; sin negrita */
+  animation: recallo-sweep .3s .08s cubic-bezier(.2, .7, .2, 1) both;
+}
+
+/* «Mostrar respuesta»: botón de tinta sobre papel, tranquilo pero claramente primario
+   (la tarjeta ya se puede tocar). */
+.answer-bar #btn-show {
+  min-height: 52px;
+  background: color-mix(in srgb, var(--surface) 97%, #e9dcc0);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-family: var(--card-font); font-size: 1.0625rem; font-weight: 400; letter-spacing: .015em;
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--accent) 22%, transparent);
+  transition: background-color .16s ease-out, transform .1s ease-out;
+}
+.answer-bar #btn-show:hover { background: var(--accent-soft); }
+.answer-bar #btn-show:active { transform: translateY(1px); box-shadow: none; }
+
+@keyframes recallo-ink {
+  from { opacity: 0; transform: translateY(5px); filter: blur(1.5px); }
+  to   { opacity: 1; transform: none; filter: none; }
+}
+@keyframes recallo-rule {
+  from { transform: scaleX(0); opacity: .4; }
+  to   { transform: scaleX(1); opacity: 1; }
+}
+@keyframes recallo-sweep { from { background-size: 0% 44%; } to { background-size: 100% 44%; } }
+@keyframes recallo-hint { from { opacity: 0; } to { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .flashcard.revealed .answer-sep, .flashcard.revealed .extra-sep,
+  .flashcard.revealed .answer-sep ~ *, .flashcard.revealed .extra-sep ~ *,
+  .flashcard.revealed .cloze, .flashcard::before { animation: none; }
+}
+
+/* ---------- Botones de valoración ----------
+   El intervalo es el protagonista (cifras tabulares, tinta del color de la valoración);
+   la etiqueta, debajo y más pequeña. Contraste AA en claro y oscuro. */
+.rate-grid { gap: 10px; }
+.rate {
+  position: relative;
+  gap: 2px; align-content: center; padding: 9px 4px 8px; min-height: 58px;
+  border: 1px solid color-mix(in srgb, var(--c) 18%, var(--surface));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--c) 8%, var(--surface));
+  transition: background-color .16s ease-out, border-color .16s ease-out, transform .1s ease-out;
+}
+.rate:hover {
+  background: color-mix(in srgb, var(--c) 14%, var(--surface));
+  border-color: color-mix(in srgb, var(--c) 32%, var(--surface));
+}
+.rate-ivl {
+  font-size: 1.0625rem; font-weight: 600; line-height: 1.2; opacity: 1;
+  font-variant-numeric: tabular-nums lining-nums; letter-spacing: -.005em;
+  color: color-mix(in srgb, var(--c) 85%, var(--text));
+  white-space: nowrap;
+}
+.rate-label {
+  font-size: .8125rem; font-weight: 550; line-height: 1.2; letter-spacing: .01em;
+  color: color-mix(in srgb, var(--muted) 70%, var(--text));
+}
+/* Chips de teclado: solo con ratón/trackpad. */
+.rate-key { display: none; }
+@media (hover: hover) and (pointer: fine) {
+  .rate-key {
+    display: inline-grid; place-items: center;
+    position: absolute; top: 6px; right: 7px;
+    min-width: 1.25rem; height: 1.25rem; padding: 0 4px;
+    font: 600 .6875rem/1 var(--font); font-variant-numeric: tabular-nums;
+    color: color-mix(in srgb, var(--muted) 70%, var(--text));
+    background: color-mix(in srgb, var(--surface) 70%, transparent);
+    border: 1px solid color-mix(in srgb, var(--c) 22%, var(--border));
+    border-bottom-width: 2px;
+    border-radius: 5px;
+  }
+}

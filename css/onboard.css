@@ -1,0 +1,70 @@
+﻿/* Estilos de la mejora «onboard» de la pantalla de estudio (se carga después de app.css). */
+
+/* ---------- Cabecera de sesión: contadores + línea de progreso ---------- */
+.study-head {
+  display: grid; gap: 10px; justify-items: center;
+  width: 100%; max-width: 620px; margin: 0 auto 16px;
+}
+.study-head .study-top { margin-bottom: 0; }
+.study-progress {
+  width: 100%; height: 2px; border-radius: 2px; overflow: hidden;
+  /* Pista algo más marcada que un separador, para que se lea como barra aun en 0. */
+  background: color-mix(in srgb, var(--accent) 18%, var(--border));
+}
+.study-progress > span {
+  display: block; height: 100%; background: var(--accent);
+  transform: scaleX(0); transform-origin: left center;
+  transition: transform .6s cubic-bezier(.16, 1, .3, 1);
+}
+
+/* ---------- Final de sesión: resumen editorial ---------- */
+.flashcard.done { color: var(--text); }
+.recap-face { display: grid; justify-items: center; gap: 0; }
+.recap-title {
+  font-family: var(--card-font); font-weight: 400; font-size: clamp(1.75rem, 1.4rem + 1.4vw, 2.25rem);
+  line-height: 1.15; letter-spacing: -.01em; color: var(--text); margin: 0 0 10px; text-wrap: balance;
+}
+.recap-line { margin: 0; max-width: 38ch; color: var(--muted); font-size: 1rem; line-height: 1.55; text-wrap: pretty; }
+.recap {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100%; max-width: 440px; margin: 28px 0 0; padding: 18px 0 0;
+  border-top: 1px solid var(--border);
+}
+.recap > div { display: grid; gap: 4px; padding: 0 8px; }
+.recap > div + div { border-left: 1px solid var(--border); }
+.recap dt { order: 2; font-size: .8125rem; color: var(--muted); line-height: 1.3; }
+.recap dd {
+  order: 1; margin: 0; font-family: var(--card-font); font-size: 1.75rem; line-height: 1.1;
+  font-variant-numeric: tabular-nums lining-nums; color: var(--text);
+}
+.recap dd small { font-size: .55em; color: var(--muted); margin-left: 1px; }
+.recap-note { margin: 14px 0 0; font-size: .8125rem; color: var(--muted); font-variant-numeric: tabular-nums; text-wrap: balance; }
+.recap-note + .recap-next { margin-top: 10px; }
+
+/* En el resumen sobran contadores (0 0 0) y barra llena: la tarjeta ya lo dice todo.
+   Con :has() se restaura sola en cuanto la tarjeta deja de ser .done (siguiente o deshacer). */
+.study:has(> .card-stage > .flashcard.done) .study-head { display: none; }
+.recap-next, .recap-wait { margin: 22px 0 0; font-size: .9375rem; color: var(--muted); }
+.recap-next strong, .recap-wait strong { color: var(--text); font-weight: 600; }
+.recap-countdown { font-variant-numeric: tabular-nums; }
+
+.recap-actions { display: grid; grid-template-columns: 1fr 2fr; gap: 8px; }
+.recap-actions .btn { justify-content: center; }
+
+@media (max-width: 480px) {
+  .recap { margin-top: 22px; }
+  .recap dd { font-size: 1.5rem; }
+  .recap > div { padding: 0 4px; }
+}
+
+/* Aviso de hermanas pospuestas: enlace discreto al ajuste, con explicación en el título. */
+.recap-note a { color: inherit; text-decoration: underline dotted; text-underline-offset: .2em; }
+.recap-note a:hover { color: var(--text); }
+
+/* «¿Por qué se posponen?»: explicación desplegable dentro del resumen (visible en táctil y para lectores). */
+.recap-why { margin: 6px 0 0; max-width: 46ch; text-align: center; font-family: var(--font); font-size: .8125rem; color: var(--muted); }
+.recap-why summary { cursor: pointer; list-style: none; text-decoration: underline dotted; text-underline-offset: .2em; min-height: 32px; display: inline-flex; align-items: center; }
+.recap-why summary::-webkit-details-marker { display: none; }
+.recap-why[open] summary { color: var(--text); }
+.recap-why p { margin: 4px 0 0; line-height: 1.5; }
+.recap-why a { color: var(--accent); }
